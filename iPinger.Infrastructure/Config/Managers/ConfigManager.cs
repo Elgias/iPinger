@@ -1,12 +1,6 @@
-﻿using iPinger.Infrastructure.Config.Parsers;
+﻿using iPinger.Application.Managers;
+using iPinger.Domain.Models;
 using iPinger.Infrastructure.Config.Providers;
-using iPinger.Infrastructure.Models;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace iPinger.Infrastructure.Config.Managers
 {

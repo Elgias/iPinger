@@ -1,10 +1,4 @@
-﻿using iPinger.Infrastructure.Models;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using iPinger.Domain.Models;
 
 namespace iPinger.Infrastructure.Config.Providers
 {

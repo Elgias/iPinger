@@ -1,5 +1,5 @@
-﻿using iPinger.Infrastructure.Config.Parsers;
-using iPinger.Infrastructure.Models;
+﻿using iPinger.Domain.Models;
+using iPinger.Infrastructure.Config.Parsers;
 
 using Newtonsoft.Json;
 
