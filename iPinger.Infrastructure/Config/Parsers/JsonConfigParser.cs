@@ -1,5 +1,4 @@
 ﻿using iPinger.Domain.Models;
-using iPinger.Infrastructure.Models;
 
 using Newtonsoft.Json;
 
@@ -18,10 +17,14 @@ namespace iPinger.Infrastructure.Config.Parsers
                 throw new ParseConfigException("Config is invalid");
             }
 
+            int i = 0;
+
             ParsedConfig parsedConfig = new ParsedConfig
             {
+                Timeout = configModel.Timeout,
                 Hosts = configModel.Hosts.Select(x => new HostModel
                 {
+                    InnerId = i++,
                     Host = x.Host,
                     Port = x.Port,
                     Protocol = x.Protocol switch
@@ -30,7 +33,7 @@ namespace iPinger.Infrastructure.Config.Parsers
                         "udp" => Protocol.Udp,
                         _ => Protocol.Tcp
                     }
-                })
+                }).ToList()
             };
 
             return parsedConfig;

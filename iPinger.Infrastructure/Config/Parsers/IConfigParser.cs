@@ -1,4 +1,4 @@
-﻿using iPinger.Infrastructure.Models;
+﻿using iPinger.Domain.Models;
 
 using System;
 using System.Collections.Generic;
