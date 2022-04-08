@@ -1,5 +1,4 @@
 ﻿using iPinger.Domain.Models;
-using iPinger.Domain.Pingers;
 
 using System;
 using System.Collections.Generic;
@@ -9,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace iPinger.Application.Factories.Pingers
 {
-    public interface IPingerFactory
+    public class PingerFactoryParams
     {
-        public IPinger CreatePinger(PingerFactoryParams param);
+        public int Timeout { get; set; }
+
+        public Protocol Protocol { get; set; }
     }
 }

@@ -9,6 +9,13 @@ namespace iPinger.Application.Pingers
 {
     public class TcpPinger : IPinger
     {
+        readonly PingerParams _params;
+
+        public TcpPinger(PingerParams pingerParams)
+        {
+            _params = pingerParams;
+        }
+
         public Task<PingResult> PingHostAsync(HostModel hostElement)
         {
             return Task.Run<PingResult>(() =>
@@ -23,11 +30,12 @@ namespace iPinger.Application.Pingers
                 {
                     using (TcpClient client = new TcpClient())
                     {
-                        if (!client.ConnectAsync(ip.Address, ip.Port).Wait(1000))
+                        if (!client.ConnectAsync(ip.Address, ip.Port).Wait(_params.Timeout))
                         {
                             throw new SocketException();
                         }
-                        
+
+                        pingResult.ResponseTime = client.Client.ReceiveTimeout;
                         pingResult.Available = client.Connected;
                     }
                 }

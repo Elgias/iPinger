@@ -13,11 +13,18 @@ namespace iPinger.Factories.Pingers
 {
     public class PingerFactory : IPingerFactory
     {
-        public IPinger CreatePingerByProtocol(Protocol protocol) => protocol switch
+        public IPinger CreatePinger(PingerFactoryParams param)
         {
-            Protocol.Tcp => new TcpPinger(),
-            Protocol.Udp => new UdpPinger(),
-            _ => new TcpPinger()
-        };
+            PingerParams pingerParams = new PingerParams()
+            {
+                Timeout = param.Timeout
+            };
+
+            return param.Protocol switch
+            {
+                Protocol.Udp => new UdpPinger(pingerParams),
+                _ => new TcpPinger(pingerParams)
+            };   
+        }
     }
 }

@@ -14,6 +14,13 @@ namespace iPinger.Application.Pingers
 {
     public class UdpPinger : IPinger
     {
+        private readonly PingerParams _params;
+
+        public UdpPinger(PingerParams @params)
+        {
+            _params = @params;
+        }
+
         public Task<PingResult> PingHostAsync(HostModel ipElement)
         {
             return Task.Run(() =>
@@ -27,8 +34,14 @@ namespace iPinger.Application.Pingers
 
                 try
                 {
-                    using (UdpClient client = new UdpClient(ip))
+                    using (UdpClient client = new UdpClient())
                     {
+
+                        if (!client.Client.ConnectAsync(ip.Address, ip.Port).Wait(_params.Timeout))
+                        {
+                            throw new SocketException();
+                        }
+
                         pingResult.Available = client.Client.Connected;
                     }
                 }
