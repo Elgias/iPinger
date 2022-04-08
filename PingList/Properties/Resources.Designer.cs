@@ -73,6 +73,16 @@ namespace PingList.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap InProcessingPing {
+            get {
+                object obj = ResourceManager.GetObject("InProcessingPing", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SuccessPing {
             get {
                 object obj = ResourceManager.GetObject("SuccessPing", resourceCulture);
