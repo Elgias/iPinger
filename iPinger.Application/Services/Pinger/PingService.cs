@@ -23,14 +23,20 @@ namespace iPinger.Application.Services
             _pingerFactory = pingerFactory;
         }
 
-        public async Task<PingResult> PingHostAsync(HostModel hostModel)
+        public async Task<PingResult> PingHostAsync(HostModel hostModel, int timeout)
         {
-            IPinger pinger = _pingerFactory.CreatePingerByProtocol(hostModel.Protocol);
+            PingerFactoryParams pingerFactoryParams = new PingerFactoryParams
+            {
+                Protocol = hostModel.Protocol,
+                Timeout = timeout
+            };
+
+            IPinger pinger = _pingerFactory.CreatePinger(pingerFactoryParams);
             
             return await pinger.PingHostAsync(hostModel);
         }
 
-        public async Task<IEnumerable<PingResult>> PingHostGroupAsync(IEnumerable<HostModel> hosts)
+        public async Task<IEnumerable<PingResult>> PingHostGroupAsync(IEnumerable<HostModel> hosts, int timeout)
         {
             ConcurrentBag<PingResult> pingResults = new ConcurrentBag<PingResult>();
 
@@ -40,7 +46,13 @@ namespace iPinger.Application.Services
             {
                 tasks.Add(Task.Factory.StartNew(() =>
                 {
-                    IPinger pinger = _pingerFactory.CreatePingerByProtocol(host.Protocol);
+                    PingerFactoryParams pingerFactoryParams = new PingerFactoryParams
+                    {
+                        Protocol = host.Protocol,
+                        Timeout = timeout
+                    };
+
+                    IPinger pinger = _pingerFactory.CreatePinger(pingerFactoryParams);
 
                     PingResult pingResult = pinger.PingHostAsync(host).GetAwaiter().GetResult();
 

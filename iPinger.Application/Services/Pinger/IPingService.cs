@@ -10,8 +10,8 @@ namespace iPinger.Application.Services.Pinger
 {
     public interface IPingService
     {
-        Task<PingResult> PingHostAsync(HostModel hostModel);
+        Task<PingResult> PingHostAsync(HostModel hostModel, int timeout);
 
-        Task<IEnumerable<PingResult>> PingHostGroupAsync(IEnumerable<HostModel> hosts);
+        Task<IEnumerable<PingResult>> PingHostGroupAsync(IEnumerable<HostModel> hosts, int timeout);
     }
 }
