@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace iPinger.Infrastructure.Models
+namespace iPinger.Domain.Models
 {
     public class ParsedConfig
     {
+        public int Timeout { get; set; }
         public IEnumerable<HostModel> Hosts { get; set; }
 
         public ParsedConfig()
