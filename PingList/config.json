@@ -1,13 +1,14 @@
 ﻿{
+  "timeout" : 1000,
   "hosts": [
     {
       "host": "185.165.123.70",
       "protocol": "tcp",
-      "port": "443"
+      "port": "80"
     },
     {
       "host": "185.165.129.70",
-      "protocol": "tcp",
+      "protocol": "udp",
       "port": "443"
     }
   ]

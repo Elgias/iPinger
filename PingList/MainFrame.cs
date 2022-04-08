@@ -1,5 +1,6 @@
 ﻿
 using iPinger.Application.Factories.Pingers;
+using iPinger.Application.Managers;
 using iPinger.Application.Services;
 using iPinger.Application.Services.Pinger;
 using iPinger.Domain.Models;
@@ -7,6 +8,8 @@ using iPinger.Factories.Pingers;
 using iPinger.Infrastructure.Config.Managers;
 using iPinger.Infrastructure.Config.Parsers;
 using iPinger.Infrastructure.Config.Providers;
+
+using PingList.Model;
 
 using System;
 using System.Collections.Generic;
@@ -65,9 +68,27 @@ namespace PingList
                 ReadOnly = true
             };
 
-            hostStatusGrid.Columns.Add(hostColumn);
-            hostStatusGrid.Columns.Add(responseTimeColumn);
-            hostStatusGrid.Columns.Add(statusColumn);
+            DataGridViewColumn innerIdColumn = new DataGridViewTextBoxColumn()
+            {
+                Name = "innerIdCoumn",
+                DataPropertyName = "InnerId",
+                Visible = false,
+                HeaderText = "Id",
+                ReadOnly = true
+            };
+
+            hostStatusGrid.Columns.AddRange(
+                hostColumn,
+                responseTimeColumn,
+                statusColumn,
+                innerIdColumn
+            );
+
+            BindingSource bindingSource = new BindingSource();
+            bindingSource.DataSource = new List<GridHostStatusItemModel>();
+
+            hostStatusGrid.DataSource = bindingSource;
+            
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -82,11 +103,14 @@ namespace PingList
 
         private async Task refreshPingList()
         {
-            if (configManager.LoadedConfig is null)
+            ParsedConfig? loadedConfig = configManager.LoadedConfig;
+
+            if (loadedConfig is null)
             {
                 try
                 {
                     configManager.LoadConfig();
+                    loadedConfig = configManager.LoadedConfig;
                 }
                 catch (Exception ex)
                 {
@@ -95,21 +119,49 @@ namespace PingList
                 }
             }
 
-            IEnumerable<PingResult> pingResults = await pingService.PingHostGroupAsync(configManager.LoadedConfig.Hosts);
+            List<GridHostStatusItemModel> dataSource = ((BindingSource)hostStatusGrid.DataSource).DataSource as List<GridHostStatusItemModel>;
+            HostModel[] configHosts = loadedConfig!.Hosts.ToArray();
 
-            BindingSource bindingSource = new BindingSource();
-
-            foreach(var pingResult in pingResults)
+            for (int i = 0; i < configHosts.Length; i++)
             {
-                bindingSource.Add(new
+                int foundIndex = dataSource.FindIndex(0, x => x.InnerId == configHosts[i].InnerId);
+
+                if (foundIndex == -1)
                 {
-                    Host = $"{pingResult.Host.Host}:{pingResult.Host.Port} / {pingResult.Host.Protocol}",
-                    ResponseTime = pingResult.ResponseTime,
-                    StatusImage = GetStatusImage(pingResult)
-                });
+                    HostModel hostModel = configHosts[i];
+
+                    dataSource.Add(new GridHostStatusItemModel(
+                        hostModel.InnerId,
+                        $"{hostModel.Host}:{hostModel.Port} / {hostModel.Protocol}",
+                        Properties.Resources.InProcessingPing
+                    ));
+                }
+                else
+                {
+                    dataSource[foundIndex].StatusImage = Properties.Resources.InProcessingPing;
+                    dataSource[foundIndex].ResponseTime = 0;
+                }
             }
 
-            hostStatusGrid.DataSource = bindingSource;
+            await Parallel.ForEachAsync(configHosts, async (host, cancelationToken) =>
+            {
+                PingResult pingResult = await pingService.PingHostAsync(host, loadedConfig.Timeout);
+
+                int foundHostIndex = dataSource.FindIndex(0, x => x.InnerId == host.InnerId);
+                GridHostStatusItemModel hostItemModel = dataSource[foundHostIndex];
+
+                hostItemModel.StatusImage = GetStatusImage(pingResult);
+                hostItemModel.ResponseTime = pingResult.ResponseTime;
+
+                hostStatusGrid.Invoke(() =>
+                {
+                    BindingSource bindingSource = new BindingSource();
+                    bindingSource.DataSource = dataSource;
+
+                    hostStatusGrid.DataSource = bindingSource;
+
+                });
+            });
 
             GC.Collect();
         }
@@ -119,6 +171,11 @@ namespace PingList
             return pingResult.Available
                 ? Properties.Resources.SuccessPing
                 : Properties.Resources.FailedPing;
+        }
+
+        private async void refreshToolStripMenuItem_ClickAsync(object sender, EventArgs e)
+        {
+            await refreshPingList();
         }
     }
 }
