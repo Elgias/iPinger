@@ -8,6 +8,7 @@ namespace iPinger.Domain.Models
 {
     public class HostModel
     {
+        public int InnerId { get; set; }
         /// <summary>
         /// Ip or hostname
         /// </summary>
